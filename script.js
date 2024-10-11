@@ -14,18 +14,34 @@ function Gameboard() {
 
     const placeToken = (row, column, player) => {
         if (board[row][column].getValue() != 0) {
-            return;
+            return false;
         }
         board[row][column].addToken(player);
-    }
+        return true;
+    };
+
+    const cleanBoard = () => {
+        for (let i = 0; i < rows; i++) {
+            board[i] = [];
+            for (let j = 0; j < columns; j++) {
+                board[i].push(Cell());
+            }
+        }
+    };
 
     // for the console only
     const printBoard = () => {
         const boardWithCellValues = board.map((row) => row.map((cell) => cell.getValue()));
         console.log(boardWithCellValues);
-    }
+    };
 
-    return { board, getBoard, placeToken, printBoard };
+    return { 
+        board, 
+        getBoard, 
+        placeToken, 
+        printBoard,
+        cleanBoard
+    }
 }
 
 function Cell() {
@@ -61,10 +77,10 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
 
     const getActivePlayer = () => activePlayer;
 
-    const printNewRound = () => {
-        board.printBoard();
-        console.log(`${getActivePlayer().name}'s turn.`)
-    };
+    // const printNewRound = () => {
+    //     board.printBoard();
+    //     console.log(`${getActivePlayer().name}'s turn.`)
+    // };
 
     const checkWinCondition = () => {
         const tempBoard = board.getBoard();
@@ -87,7 +103,7 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
         if (tempBoard[0][0].getValue() !== "" && tempBoard[0][0].getValue() === tempBoard[1][1].getValue() && tempBoard[0][0].getValue() === tempBoard[2][2].getValue()) {
             win = true;
         }
-        if (tempBoard[0][2].getValue() !== "" && tempBoard[0][2].getValue() === tempBoard[1][1].getValue() && tempBoard[0][2].getValue() === tempBoard[0][2].getValue()) {
+        if (tempBoard[0][2].getValue() !== "" && tempBoard[0][2].getValue() === tempBoard[1][1].getValue() && tempBoard[0][2].getValue() === tempBoard[2][0].getValue()) {
             win = true;
         }
 
@@ -96,7 +112,10 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
 
     const playRound = (row, column) => {
         console.log(`Placing ${getActivePlayer().name}'s token at row ${row} and col ${column}...`);
-        board.placeToken(row, column, getActivePlayer().token);
+        if (!board.placeToken(row, column, getActivePlayer().token)) {
+            console.log("Can't place that there.");
+            return;
+        }
 
         // check for win condition here
         if (checkWinCondition()) {
@@ -106,18 +125,29 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
         }
 
         switchPlayerTurn();
-        printNewRound();
     }
 
-    printNewRound();
+    const reset = () => {
+        board.cleanBoard();
+        if (activePlayer !== players[0]) {
+            switchPlayerTurn();
+        }
+    };
 
-    return { playRound, getActivePlayer, getBoard: board.getBoard }
+    return { 
+        playRound, 
+        getActivePlayer, 
+        getBoard: board.getBoard,
+        checkWinCondition,
+        reset
+    }
 }
 
 function ScreenController() {
     const game = GameController();
     const playerTurnDiv = document.querySelector(".turn");
     const boardDiv = document.querySelector(".board");
+    const resetButton = document.querySelector(".reset");
 
     const updateScreen = () => {
         boardDiv.textContent = "";
@@ -125,7 +155,13 @@ function ScreenController() {
         const board = game.getBoard();
         const activePlayer = game.getActivePlayer();
 
-        playerTurnDiv.textContent = `${activePlayer.name}'s turn.`;
+        if (game.checkWinCondition()) {
+            playerTurnDiv.textContent = `${activePlayer.name} wins!`;
+            boardDiv.style.backgroundColor = "blue";
+        } else {
+            playerTurnDiv.textContent = `${activePlayer.name}'s turn.`;
+            boardDiv.style.backgroundColor = "red";
+        }
 
         for (let i = 0; i < 3; i ++) {
             for (let j = 0; j < 3; j++) {
@@ -147,10 +183,19 @@ function ScreenController() {
             return;
         }
 
+        if (game.checkWinCondition()) {
+            return;
+        }
+
         game.playRound(selectedRow, selectedCol);
         updateScreen();
     }
     boardDiv.addEventListener("click", clickHandlerBoard);
+
+    resetButton.addEventListener("click", () => {
+        game.reset();
+        updateScreen();
+    });
 
     updateScreen();
 };

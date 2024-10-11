@@ -1,12 +1,20 @@
+body {
+    background-color: beige;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
 .board {
     display: grid;
     height: 500px;
     width: 500px;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    border: 1px solid black;
-    gap: 2px;
-    background-color: beige;
+    gap: 10px;
+    background-color: red;
 }
 
 .cell {
@@ -14,6 +22,8 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    border: 1px solid grey;
-    background-color: lightskyblue;
+    background-color: beige;
+    border: 0;
+    font-size: 50px;
+    font-weight: bold;
 }

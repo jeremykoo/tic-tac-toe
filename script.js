@@ -61,11 +61,13 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
     const players = [
         {
             name: playerOneName,
-            token: "X"
+            token: "X",
+            score: 0
         },
         {
             name: playerTwoName,
-            token: "O"
+            token: "O",
+            score: 0
         }
     ];
 
@@ -81,6 +83,8 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
     //     board.printBoard();
     //     console.log(`${getActivePlayer().name}'s turn.`)
     // };
+
+    const getScores = () => [players[0].score, players[1].score];
 
     const checkWinCondition = () => {
         const tempBoard = board.getBoard();
@@ -111,16 +115,17 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
     };
 
     const playRound = (row, column) => {
-        console.log(`Placing ${getActivePlayer().name}'s token at row ${row} and col ${column}...`);
+        // console.log(`Placing ${getActivePlayer().name}'s token at row ${row} and col ${column}...`);
         if (!board.placeToken(row, column, getActivePlayer().token)) {
-            console.log("Can't place that there.");
+            // console.log("Can't place that there.");
             return;
         }
 
         // check for win condition here
         if (checkWinCondition()) {
-            console.log(`Game over. ${getActivePlayer().name} wins!`);
-            board.printBoard();
+            // console.log(`Game over. ${getActivePlayer().name} wins!`);
+            activePlayer.score += 1;
+            // board.printBoard();
             return;
         }
 
@@ -139,7 +144,8 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
         getActivePlayer, 
         getBoard: board.getBoard,
         checkWinCondition,
-        reset
+        reset,
+        getScores
     }
 }
 
@@ -148,12 +154,16 @@ function ScreenController() {
     const playerTurnDiv = document.querySelector(".turn");
     const boardDiv = document.querySelector(".board");
     const resetButton = document.querySelector(".reset");
+    const scoreDiv = document.querySelector(".score");
 
     const updateScreen = () => {
         boardDiv.textContent = "";
 
         const board = game.getBoard();
         const activePlayer = game.getActivePlayer();
+        const scores = game.getScores();
+
+        scoreDiv.textContent = `${scores[0]} - ${scores[1]}`;
 
         if (game.checkWinCondition()) {
             playerTurnDiv.textContent = `${activePlayer.name} wins!`;

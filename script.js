@@ -132,11 +132,14 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
         switchPlayerTurn();
     }
 
-    const reset = () => {
+    const reset = (p1name, p2name) => {
         board.cleanBoard();
         if (activePlayer !== players[0]) {
             switchPlayerTurn();
         }
+        console.log(p1name, p2name);
+        players[0].name = p1name ? p1name : "Player One";
+        players[1].name = p2name ? p2name : "Player Two";
     };
 
     return { 
@@ -150,11 +153,12 @@ function GameController(playerOneName = "Player One", playerTwoName = "Player Tw
 }
 
 function ScreenController() {
-    const game = GameController();
     const playerTurnDiv = document.querySelector(".turn");
     const boardDiv = document.querySelector(".board");
     const resetButton = document.querySelector(".reset");
     const scoreDiv = document.querySelector(".score");
+
+    const game = GameController();
 
     const updateScreen = () => {
         boardDiv.textContent = "";
@@ -167,10 +171,8 @@ function ScreenController() {
 
         if (game.checkWinCondition()) {
             playerTurnDiv.textContent = `${activePlayer.name} wins!`;
-            boardDiv.style.backgroundColor = "blue";
         } else {
             playerTurnDiv.textContent = `${activePlayer.name}'s turn.`;
-            boardDiv.style.backgroundColor = "red";
         }
 
         for (let i = 0; i < 3; i ++) {
@@ -203,7 +205,9 @@ function ScreenController() {
     boardDiv.addEventListener("click", clickHandlerBoard);
 
     resetButton.addEventListener("click", () => {
-        game.reset();
+        const playerOne = document.querySelector("#player-one");
+        const playerTwo = document.querySelector("#player-two");
+        game.reset(playerOne.value, playerTwo.value);
         updateScreen();
     });
 
